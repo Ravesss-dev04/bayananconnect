@@ -1,0 +1,123 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { FaUser, FaLock, FaEye, FaEyeSlash, FaMapMarkedAlt } from "react-icons/fa";
+
+export default function LoginPage() {
+  const [showPassword, setShowPassword] = useState(false);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
+        <svg className="w-full h-full text-emerald-500 fill-current" xmlns="http://www.w3.org/2000/svg">
+            <pattern id="pattern-circles" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="1" />
+            </pattern>
+            <rect x="0" y="0" width="100%" height="100%" fill="url(#pattern-circles)" />
+        </svg>
+      </div>
+
+      {/* Login Card */}
+      <div className="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 p-8 sm:p-10 transform transition-all hover:shadow-2xl">
+        
+        {/* Header Section */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-2xl mb-4 text-emerald-600 shadow-inner">
+            <FaMapMarkedAlt className="text-3xl" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800">Resident Portal</h1>
+          <p className="text-sm text-emerald-600 font-medium mt-1">Barangay Bayanan GIS Platform</p>
+        </div>
+
+        {/* Form Inputs */}
+        <form className="space-y-6">
+          
+          {/* Username Input */}
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <FaUser className="text-gray-400 group-focus-within:text-emerald-500 transition-colors" />
+            </div>
+            <input
+              type="text"
+              placeholder="Username or Email"
+              className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium placeholder:text-gray-400"
+            />
+          </div>
+
+          {/* Password Input */}
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <FaLock className="text-gray-400 group-focus-within:text-emerald-500 transition-colors" />
+            </div>
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              className="w-full pl-11 pr-12 py-3 bg-gray-50 border border-gray-200 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium placeholder:text-gray-400"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer text-gray-400 hover:text-emerald-600 transition-colors"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
+
+          {/* Remember Me & Forgot Password */}
+          <div className="flex items-center justify-between text-sm">
+            <label className="flex items-center cursor-pointer text-gray-600 hover:text-gray-800">
+              <input type="checkbox" className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 transition-colors mr-2 accent-emerald-600" />
+              Remember me
+            </label>
+            <a href="#" className="font-medium text-emerald-600 hover:text-emerald-700 hover:underline">
+              Forgot Password?
+            </a>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-lg shadow-lg shadow-emerald-200 transform transition-all hover:translate-y-[-2px] active:translate-y-0 flex items-center justify-center gap-2"
+          >
+            <FaSignOutAltIconRotated /> ENTER BAYANAN
+          </button>
+        </form>
+
+        {/* Footer */}
+        <div className="mt-8 text-center text-sm text-gray-500">
+          <p>
+            Don't have an account?{" "}
+            <Link href="/register" className="font-bold text-emerald-600 hover:text-emerald-800 transition-colors">
+              Register Now
+            </Link>
+          </p>
+        </div>
+      </div>
+      
+      {/* Decorative footer text */}
+      <div className="absolute bottom-6 text-xs text-gray-400 text-center w-full">
+        &copy; 2026 Barangay Bayanan Data Systems. All rights reserved.
+      </div>
+    </div>
+  );
+}
+
+// Custom icon component for the button to match the "enter" style
+function FaSignOutAltIconRotated({ className }: { className?: string }) {
+    return (
+        <svg 
+            stroke="currentColor" 
+            fill="currentColor" 
+            strokeWidth="0" 
+            viewBox="0 0 512 512" 
+            className={className} 
+            height="1em" 
+            width="1em" 
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <path d="M497 273L329 441c-15 15-41 4.5-41-17v-96H152c-13.3 0-24-10.7-24-24v-96c0-13.3 10.7-24 24-24h136V88c0-21.4 25.9-32 41-17l168 168c9.3 9.4 9.3 24.6 0 34zM192 436v-40c0-6.6-5.4-12-12-12H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h84c6.6 0 12-5.4 12-12V76c0-6.6-5.4-12-12-12H96c-53 0-96 43-96 96v192c0 53 43 96 96 96h84c6.6 0 12-5.4 12-12z"></path>
+        </svg>
+    )
+}
