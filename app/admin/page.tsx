@@ -11,7 +11,12 @@ import {
 import DashboardOverview from "@/app/components/admin/DashboardOverview";
 import Requests from "@/app/components/admin/Requests";
 import Resources from "@/app/components/admin/Resources";
-import GISMap from "@/app/components/admin/GISMap";
+// Dynamically import map components to avoid "window is not defined" error during build
+import dynamic from 'next/dynamic';
+const GISMap = dynamic(() => import("@/app/components/admin/GISMap"), { 
+  ssr: false,
+  loading: () => <div className="h-[calc(100vh-140px)] flex items-center justify-center bg-slate-800 text-slate-500 rounded-2xl border border-slate-700"><FaSpinner className="animate-spin text-3xl"/></div>
+});
 import Analytics from "@/app/components/admin/Analytics";
 import CCTVMonitoring from "@/app/components/admin/CCTVMonitoring";
 import Settings from "@/app/components/admin/Settings";
