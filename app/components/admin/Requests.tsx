@@ -1,8 +1,39 @@
 "use client";
 
-import { mockRequests } from "@/lib/mockData";
+import { useEffect, useState } from "react";
+
+interface Request {
+    id: string;
+    type: string;
+    description: string;
+    status: string;
+    createdAt: string;
+    userFullName: string | null;
+    userAddress: string | null;
+}
 
 export default function Requests() {
+    const [requests, setRequests] = useState<Request[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchRequests = async () => {
+             try {
+                const res = await fetch('/api/admin/requests');
+                if (res.ok) {
+                    const data = await res.json();
+                    setRequests(data.requests);
+                }
+             } catch (error) {
+                 console.error("Failed to fetch requests", error);
+             } finally {
+                 setLoading(false);
+             }
+        };
+
+        fetchRequests();
+    }, []);
+
     return (
         <div className="bg-slate-800 rounded-2xl shadow-sm border border-slate-700 overflow-hidden animate-fadeIn">
             <div className="p-6 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -19,28 +50,27 @@ export default function Requests() {
                             <th className="px-6 py-4 font-semibold">Request ID</th>
                             <th className="px-6 py-4 font-semibold">Source</th>
                             <th className="px-6 py-4 font-semibold">Type</th>
-                            <th className="px-6 py-4 font-semibold">Urgency</th>
+                            <th className="px-6 py-4 font-semibold">Reported By</th>
                             <th className="px-6 py-4 font-semibold">Status</th>
                             <th className="px-6 py-4 font-semibold text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-700">
-                        {mockRequests.map(req => (
+                        {loading && (
+                            <tr><td colSpan={6} className="px-6 py-4 text-center text-gray-500">Loading...</td></tr>
+                        )}
+                        {!loading && requests.length === 0 && (
+                            <tr><td colSpan={6} className="px-6 py-4 text-center text-gray-500">No requests found.</td></tr>
+                        )}
+                        {requests.map(req => (
                             <tr key={req.id} className="hover:bg-slate-700/50 transition-colors">
-                                <td className="px-6 py-4 font-mono text-emerald-400 font-medium">#{req.id}</td>
+                                <td className="px-6 py-4 font-mono text-emerald-400 font-medium">#{req.id.slice(0, 8)}</td>
                                 <td className="px-6 py-4 text-gray-300">App</td>
                                 <td className="px-6 py-4 text-gray-300">{req.type}</td>
-                                <td className="px-6 py-4">
-                                    <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${
-                                        req.urgency === 'High' ? 'bg-red-900/50 text-red-400 border border-red-800' : 
-                                        req.urgency === 'Medium' ? 'bg-orange-900/50 text-orange-400 border border-orange-800' : 'bg-slate-700 text-gray-400'
-                                    }`}>
-                                        {req.urgency}
-                                    </span>
-                                </td>
+                                <td className="px-6 py-4 text-gray-300">{req.userFullName || "Unknown"}</td>
                                 <td className="px-6 py-4">
                                     <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold border border-transparent ${
-                                        req.status === 'Completed' ? 'bg-emerald-900/50 text-emerald-400 border-emerald-800' :
+                                        req.status === 'Resolved' ? 'bg-emerald-900/50 text-emerald-400 border-emerald-800' :
                                         req.status === 'In Progress' ? 'bg-blue-900/50 text-blue-400 border-blue-800' :
                                         'bg-yellow-900/50 text-yellow-400 border-yellow-800'
                                     }`}>

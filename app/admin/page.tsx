@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useState, useEffect } from "react";
 import { 
   FaChartPie, FaClipboardList, FaMapMarkedAlt, 
-  FaVideo, FaTruck, FaLayerGroup, FaBars, FaSearch, FaBell, FaSignOutAlt, FaCog
+  FaVideo, FaTruck, FaLayerGroup, FaBars, FaSearch, FaBell, FaSignOutAlt, FaCog,
+  FaSpinner
 } from "react-icons/fa";
 
 // Import Modular Components
@@ -33,6 +33,40 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }: any) => (
 export default function AdminPage() {
     const [activeTab, setActiveTab] = useState('dashboard');
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [adminEmail, setAdminEmail] = useState<string>("");
+    const [loading, setLoading] = useState(true);
+
+    // Check if admin is logged in
+    useEffect(() => {
+        checkAdminAuth();
+    }, []);
+
+    const checkAdminAuth = async () => {
+        try {
+            const response = await fetch('/api/admin/check');
+            const data = await response.json();
+            
+            if (data.loggedIn) {
+                setAdminEmail(data.email || "Administrator");
+            } else {
+                window.location.href = '/admin/login';
+            }
+        } catch (error) {
+            console.error('Auth check failed:', error);
+            window.location.href = '/admin/login';
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleLogout = async () => {
+        try {
+            await fetch('/api/admin/logout', { method: 'POST' });
+            window.location.href = '/admin/login';
+        } catch (error) {
+            console.error('Logout failed', error);
+        }
+    };
 
     const renderContent = () => {
         switch(activeTab) {
@@ -47,6 +81,18 @@ export default function AdminPage() {
         }
     };
 
+    // Show loading while checking auth
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+                <div className="text-center">
+                    <FaSpinner className="animate-spin text-4xl text-emerald-600 mx-auto mb-4" />
+                    <p className="text-gray-400">Checking Admin Access...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="flex min-h-screen bg-slate-900 text-gray-100 font-sans selection:bg-emerald-500/30">
             {/* Sidebar Desktop */}
@@ -60,7 +106,21 @@ export default function AdminPage() {
                         <FaBars />
                     </button>
                 </div>
-                <div className="p-4 space-y-2 overflow-y-auto h-[calc(100vh-140px)]">
+                
+                {/* Admin Info */}
+                <div className="p-4 border-b border-slate-800 bg-slate-900/30">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-500/20">
+                            {adminEmail?.charAt(0).toUpperCase() || 'A'}
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold text-white truncate">{adminEmail || 'Administrator'}</p>
+                            <p className="text-xs text-emerald-500">ADMINISTRATOR</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-4 space-y-2 overflow-y-auto h-[calc(100vh-220px)]">
                     <p className="text-xs font-bold text-slate-500 uppercase px-4 py-2 mt-2">Main</p>
                     <SidebarItem icon={FaChartPie} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
                     <SidebarItem icon={FaMapMarkedAlt} label="GIS Map" active={activeTab === 'gis'} onClick={() => setActiveTab('gis')} />
@@ -80,10 +140,13 @@ export default function AdminPage() {
                 </div>
 
                 <div className="absolute bottom-0 w-full p-4 border-t border-slate-800 bg-slate-950">
-                    <Link href="/admin/login" className="flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-slate-900 rounded-lg transition-colors">
+                    <button 
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-slate-900 rounded-lg transition-colors w-full text-left"
+                    >
                         <FaSignOutAlt />
                         <span className="font-medium text-sm">Logout</span>
-                    </Link>
+                    </button>
                 </div>
             </aside>
 
@@ -117,7 +180,10 @@ export default function AdminPage() {
                             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                         </button>
                         <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-500/20">
-                            A
+                            {adminEmail?.charAt(0).toUpperCase() || 'A'}
+                        </div>
+                        <div className="hidden md:block text-sm text-slate-400">
+                            {adminEmail}
                         </div>
                     </div>
                 </header>

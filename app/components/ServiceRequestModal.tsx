@@ -1,23 +1,85 @@
 "use client";
 
-import { useState } from "react";
-import { FaTimes, FaCamera, FaMapMarkerAlt } from "react-icons/fa";
+import { useState, useRef, useEffect } from "react";
+import { FaTimes, FaCamera, FaMapMarkerAlt, FaSpinner } from "react-icons/fa";
 
-export default function ServiceRequestModal({ onClose }: { onClose: () => void }) {
+type ServiceRequestModalProps = {
+  onClose: () => void;
+  onSuccess?: () => void;
+  location: { lat: number; lng: number } | null;
+};
+
+export default function ServiceRequestModal({ onClose, onSuccess, location }: ServiceRequestModalProps) {
   const [step, setStep] = useState(1);
   const [type, setType] = useState("");
-  
+  const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [otherType, setOtherType] = useState(""); // For manual input if "Other"
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Exact options requested by user
   const issueTypes = [
-    "Garbage Collection", "Streetlight not working", "Pothole", "Clogged Drainage", 
-    "Illegal Dumping", "Stray Animals", "Noise Complaint", "Other"
+    "Garbage Collection", 
+    "Pothole", 
+    "Illegal Dumping", 
+    "Noise Complaint", 
+    "Other"
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStep(3); // Success state
-    setTimeout(() => {
-        onClose();
-    }, 2000);
+    setLoading(true);
+
+    const finalType = type === "Other" ? otherType : type;
+    
+    // Default to Bayanan center or 0 if no location
+    const finalLat = location?.lat || 14.4081;
+    const finalLng = location?.lng || 121.0415;
+
+    try {
+        const res = await fetch("/api/requests/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json"},
+            body: JSON.stringify({
+                type: finalType,
+                description: description,
+                latitude: finalLat,
+                longitude: finalLng,
+                imageUrl: imagePreview, 
+            })
+        });
+
+        if (res.ok) {
+            setStep(3); // Success state
+            setTimeout(() => {
+                // If onSuccess is provided, call it to redirect/refresh
+                if (onSuccess) {
+                    onSuccess();
+                } else {
+                    onClose();
+                }
+            }, 2000);
+        } else {
+            alert("Failed to submit report. Please try again.");
+        }
+    } catch (error) {
+        console.error(error);
+        alert("An error occurred.");
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (
@@ -54,22 +116,59 @@ export default function ServiceRequestModal({ onClose }: { onClose: () => void }
                         Reporting: {type}
                     </div>
 
+                    { type === "Other" && (
+                         <div className="space-y-1">
+                            <label className="text-xs font-bold text-gray-500 uppercase">Specify Problem</label>
+                            <input 
+                                type="text"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                                placeholder="E.g. Broken bench, graffiti..."
+                                value={otherType}
+                                onChange={(e) => setOtherType(e.target.value)}
+                                required
+                            />
+                        </div>
+                    )}
+
                     {/* Location */}
                     <div className="space-y-1">
                         <label className="text-xs font-bold text-gray-500 uppercase">Location</label>
                         <div className="flex bg-gray-50 border border-gray-200 rounded-lg p-3 text-gray-700 items-center gap-2">
                             <FaMapMarkerAlt className="text-red-500" />
-                            <span className="flex-1 truncate">Near Block 5, Lot 2 (Auto-detected)</span>
-                            <button type="button" className="text-xs text-blue-600 hover:underline">Edit</button>
+                            <span className="flex-1 truncate">
+                                {location ? `${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}` : "Position not set (Will use default/current)"}
+                            </span>
                         </div>
                     </div>
 
                     {/* Photo Upload */}
                     <div className="space-y-1">
                         <label className="text-xs font-bold text-gray-500 uppercase">Photo Evidence</label>
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-gray-400 hover:border-emerald-500 hover:text-emerald-500 transition-colors cursor-pointer">
-                            <FaCamera className="text-2xl mb-2" />
-                            <span className="text-sm">Tap to take photo or upload</span>
+                        <div 
+                            onClick={() => fileInputRef.current?.click()}
+                            className={`border-2 border-dashed ${imagePreview ? "border-emerald-500 bg-emerald-50" : "border-gray-300"} rounded-lg p-6 flex flex-col items-center justify-center text-gray-400 hover:border-emerald-500 hover:text-emerald-500 transition-colors cursor-pointer relative overflow-hidden`}
+                        >
+                            {imagePreview ? (
+                                <>
+                                    <img src={imagePreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-50" />
+                                    <div className="z-10 bg-white/80 p-2 rounded-full shadow-sm">
+                                        <FaCamera className="text-2xl text-emerald-600" />
+                                    </div>
+                                    <span className="z-10 text-xs font-bold text-emerald-700 mt-2 bg-white/80 px-2 py-0.5 rounded">Change Photo</span>
+                                </>
+                            ) : (
+                                <>
+                                    <FaCamera className="text-2xl mb-2" />
+                                    <span className="text-sm">Tap to take photo or upload</span>
+                                </>
+                            )}
+                            <input 
+                                type="file" 
+                                ref={fileInputRef}
+                                className="hidden" 
+                                accept="image/*"
+                                onChange={handleFileChange}
+                            />
                         </div>
                     </div>
 
@@ -80,28 +179,22 @@ export default function ServiceRequestModal({ onClose }: { onClose: () => void }
                             className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                             rows={3}
                             placeholder="Describe the issue in detail..."
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
                             required
                         ></textarea>
                     </div>
 
-                    {/* Urgency */}
-                    <div className="space-y-1">
-                        <label className="text-xs font-bold text-gray-500 uppercase">Urgency</label>
-                        <div className="flex gap-2">
-                            {['Low', 'Medium', 'High'].map(u => (
-                                <label key={u} className="flex-1 cursor-pointer">
-                                    <input type="radio" name="urgency" className="peer sr-only" />
-                                    <div className="text-center py-2 rounded-lg border border-gray-200 text-sm peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600 transition-all hover:bg-gray-50">
-                                        {u}
-                                    </div>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-
                     <div className="flex gap-3 mt-6">
                         <button type="button" onClick={() => setStep(1)} className="flex-1 py-3 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition-colors">Back</button>
-                        <button type="submit" className="flex-1 py-3 bg-emerald-600 text-white font-bold rounded-lg shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-transform active:scale-95">Submit Report</button>
+                        <button 
+                            type="submit" 
+                            disabled={loading}
+                            className="flex-1 py-3 bg-emerald-600 text-white font-bold rounded-lg shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-transform active:scale-95 flex justify-center items-center gap-2"
+                        >
+                            {loading && <FaSpinner className="animate-spin" />}
+                            Submit Report
+                        </button>
                     </div>
                 </form>
             )}
@@ -112,8 +205,8 @@ export default function ServiceRequestModal({ onClose }: { onClose: () => void }
                         <svg className="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                     </div>
                     <h3 className="text-xl font-bold text-gray-800">Report Submitted!</h3>
-                    <p className="text-gray-500 mt-2">Your Request ID is <span className="font-mono font-bold text-gray-800">#BRG-00125</span></p>
-                    <p className="text-sm text-gray-400 mt-1">We'll notify you of updates.</p>
+                    <p className="text-gray-500 mt-2">Your Request ID is <span className="font-mono font-bold text-gray-800">#NEW</span></p>
+                    <p className="text-sm text-gray-400 mt-1">We will notify you of updates.</p>
                 </div>
             )}
         </div>

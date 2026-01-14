@@ -1,44 +1,72 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FaUser, FaLock, FaEye, FaEyeSlash, FaMapMarkedAlt } from "react-icons/fa";
-import { demoAccounts } from "@/lib/mockData";
+import { useAuth } from "@/app/context/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { user, loading: authLoading, login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && !authLoading) {
+      router.push('/resident');
+    }
+  }, [user, authLoading, router]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const account = demoAccounts.find(
-      (acc) => acc.email === email && acc.password === password
-    );
-
-    if (account) {
-      if (account.role === 'admin') {
-        setError("This portal is for Residents only. Please use the Admin Portal.");
-        setLoading(false);
-      } else {
+    try {
+      const success = await login(email, password);
+      
+      if (success) {
         router.push('/resident');
+      } else {
+        setError('Invalid email or password');
       }
-    } else {
-      setError("Invalid email or password. Try resident@bayanan.gov / 123");
+    } catch (err: any) {
+      setError(err.message || 'Login failed');
+    } finally {
       setLoading(false);
     }
   };
 
+  // Test credentials button
+  const useTestCredentials = () => {
+    setEmail("resident@bayanan.gov");
+    setPassword("resident123");
+  };
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  
+  // Don't render login form if user is already logged in
+
+  if (user) {
+    return null; // Will redirect in useEffect
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 relative overflow-hidden">
@@ -51,6 +79,7 @@ export default function LoginPage() {
             <rect x="0" y="0" width="100%" height="100%" fill="url(#pattern-circles)" />
         </svg>
       </div>
+      
       {/* Login Card */}
       <div className="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 p-8 sm:p-10 transform transition-all hover:shadow-2xl">
         
@@ -61,6 +90,15 @@ export default function LoginPage() {
           </div>
           <h1 className="text-2xl font-bold text-gray-800">Resident Portal</h1>
           <p className="text-sm text-emerald-600 font-medium mt-1">Barangay Bayanan GIS Platform</p>
+          
+          {/* Test Credentials Button */}
+          <button
+            onClick={useTestCredentials}
+            className="mt-4 text-xs text-emerald-600 hover:text-emerald-800 underline"
+            type="button"
+          >
+            Use Test Credentials
+          </button>
         </div>
 
         {/* Error Message */}
@@ -73,7 +111,7 @@ export default function LoginPage() {
         {/* Form Inputs */}
         <form onSubmit={handleLogin} className="space-y-6">
           
-          {/* Username Input */}
+          {/* Email Input */}
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <FaUser className="text-gray-400 group-focus-within:text-emerald-500 transition-colors" />
@@ -87,6 +125,7 @@ export default function LoginPage() {
               className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium placeholder:text-gray-400"
             />
           </div>
+          
           {/* Password Input */}
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -124,9 +163,9 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-lg shadow-lg shadow-emerald-200 transform transition-all hover:translate-y-[-2px] active:translate-y-0 flex items-center justify-center gap-2 ${loading ? 'opacity-75 cursor-not-allowed' : ''}`}
+            className={`w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-lg shadow-lg shadow-emerald-200 transform transition-all hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 ${loading ? 'opacity-75 cursor-not-allowed' : ''}`}
           >
-            {loading ? 'Logging in...' : <><FaSignOutAltIconRotated /> ENTER BAYANAN</>}
+            {loading ? 'Logging in...' : 'ENTER BAYANAN'}
           </button>
         </form>
 
@@ -152,22 +191,4 @@ export default function LoginPage() {
       </div>
     </div>
   );
-}
-
-// Custom icon component for the button to match the "enter" style
-function FaSignOutAltIconRotated({ className }: { className?: string }) {
-    return (
-        <svg 
-            stroke="currentColor" 
-            fill="currentColor" 
-            strokeWidth="0" 
-            viewBox="0 0 512 512" 
-            className={className} 
-            height="1em" 
-            width="1em" 
-            xmlns="http://www.w3.org/2000/svg"
-        >
-            <path d="M497 273L329 441c-15 15-41 4.5-41-17v-96H152c-13.3 0-24-10.7-24-24v-96c0-13.3 10.7-24 24-24h136V88c0-21.4 25.9-32 41-17l168 168c9.3 9.4 9.3 24.6 0 34zM192 436v-40c0-6.6-5.4-12-12-12H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h84c6.6 0 12-5.4 12-12V76c0-6.6-5.4-12-12-12H96c-53 0-96 43-96 96v192c0 53 43 96 96 96h84c6.6 0 12-5.4 12-12z"></path>
-        </svg>
-    )
 }

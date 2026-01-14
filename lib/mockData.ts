@@ -1,15 +1,15 @@
 import { User, ServiceRequest, Announcement, Poll } from './types';
 
 export const demoAccounts = [
-  { email: 'resident@bayanan.gov', password: '123', role: 'resident', name: 'Juan Dela Cruz' },
-  { email: 'admin@bayanan.gov', password: '123', role: 'admin', name: 'Kapitan Tiago' },
+  { email: 'resident@bayanan.gov', password: '123', role: 'USER' as const, name: 'Juan Dela Cruz' },
+  { email: 'admin@bayanan.gov', password: '123', role: 'ADMIN' as const, name: 'Kapitan Tiago' },
 ];
 
 export const mockUser: User = {
   id: 'u1',
   name: 'Juan Dela Cruz',
   email: 'resident@bayanan.gov',
-  role: 'resident',
+  role: 'USER',
   address: 'Block 5 Lot 2, Phase 1, Bayanan, Muntinlupa',
   mobile: '09123456789',
   avatarUrl: 'https://ui-avatars.com/api/?name=Juan+Dela+Cruz'
