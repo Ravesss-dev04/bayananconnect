@@ -18,10 +18,11 @@ export async function GET(req: NextRequest) {
       .from(polls)
       .where(eq(polls.isActive, true))
       .orderBy(desc(polls.createdAt));
-
+      
     // For each poll, get vote counts and if current user voted
     const pollsWithData = await Promise.all(activePolls.map(async (poll) => {
         // Get vote counts per option
+
         const votes = await db
             .select({
                 optionIndex: pollVotes.optionIndex,

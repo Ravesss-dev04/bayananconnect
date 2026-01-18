@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db/drizzle';
-import { requests } from '@/db/schema';
+import { requests, notifications } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { cookies } from 'next/headers';
 
@@ -19,11 +19,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing id or status' }, { status: 400 });
     }
 
+    // 1. Get the request first to find the userId
+    const existingRequest = await db.select().from(requests).where(eq(requests.id, id));
+    
+    if (existingRequest.length === 0) {
+        return NextResponse.json({ error: 'Request not found' }, { status: 404 });
+    }
+
+    const reqData = existingRequest[0];
+
+    // 2. Update the status
     const updated = await db
       .update(requests)
       .set({ status, updatedAt: new Date() })
       .where(eq(requests.id, id))
       .returning();
+
+    // 3. Create Notification
+    await db.insert(notifications).values({
+        userId: reqData.userId,
+        title: 'Request Update',
+        message: `Your request regarding "${reqData.type}" has been updated to: ${status}`,
+        type: status === 'Completed' || status === 'Resolved' ? 'success' : 'info'
+    });
 
     return NextResponse.json({ success: true, request: updated[0] });
 

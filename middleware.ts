@@ -10,7 +10,6 @@ export function middleware(request: NextRequest) {
   const isProtectedRoute = protectedRoutes.some(route => 
     pathname.startsWith(route)
   );
-
   // Redirect to login if trying to access protected route without auth
   if (isProtectedRoute && !userData) {
     return NextResponse.redirect(new URL('/login', request.url));

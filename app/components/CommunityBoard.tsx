@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FaBullhorn, FaPoll, FaStar, FaCommentDots, FaSpinner, FaCheckCircle } from "react-icons/fa";
+import { FaBullhorn, FaPoll, FaStar, FaCommentDots, FaSpinner, FaCheckCircle, FaThumbsUp, FaThumbsDown, FaReply } from "react-icons/fa";
 
 export default function CommunityBoard() {
   const [activeTab, setActiveTab] = useState<'feedback' | 'polls'>('feedback');
@@ -86,26 +86,40 @@ export default function CommunityBoard() {
       }
   };
 
+  const handleFeedbackVote = async (feedbackId: string, type: 'like' | 'dislike') => {
+      try {
+          // Optimistic UI update could be applied here
+          const res = await fetch('/api/feedback/vote', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ feedbackId, type })
+          });
+          if (res.ok) {
+              fetchData();
+          }
+      } catch (e) { console.error(e); }
+  };
+
   if (loading && feedbackList.length === 0 && pollsList.length === 0) {
        return <div className="p-8 text-center text-slate-500 font-medium h-full flex items-center justify-center"><FaSpinner className="animate-spin inline mr-2 text-emerald-500"/> Loading community data...</div>;
   }
 
   return (
-    <div className="h-full overflow-y-auto pb-20 p-6 bg-slate-900 scrollbar-hide space-y-8">
+    <div className="h-full overflow-y-auto pb-20 p-4 md:p-6 bg-slate-900 scrollbar-hide space-y-6 md:space-y-8">
       
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
         <h2 className="text-2xl font-bold text-slate-200 tracking-tight">Community Board</h2>
-        <div className="flex bg-slate-800 rounded-lg p-1 border border-slate-700">
+        <div className="flex w-full md:w-auto bg-slate-800 rounded-lg p-1 border border-slate-700">
             <button 
                 onClick={() => setActiveTab('feedback')}
-                className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab === 'feedback' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                className={`flex-1 md:flex-none px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab === 'feedback' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
             >
                 Feedback
             </button>
              <button 
                 onClick={() => setActiveTab('polls')}
-                className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab === 'polls' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                className={`flex-1 md:flex-none px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab === 'polls' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
             >
                 Active Polls
             </button>
@@ -119,7 +133,7 @@ export default function CommunityBoard() {
                     <div className="relative z-10 max-w-lg">
                         <h3 className="text-xl font-bold mb-2 flex items-center gap-2"><FaStar className="text-yellow-300"/> How are we doing?</h3>
                         <p className="text-emerald-50 text-sm mb-4">Share your thoughts to help us improve Barangay services.</p>
-                        
+
                         <form onSubmit={handleSubmitFeedback} className="space-y-3">
                             <textarea 
                                 value={feedbackContent}
@@ -127,7 +141,7 @@ export default function CommunityBoard() {
                                 placeholder="Write your feedback here..."
                                 className="w-full bg-white/10 border border-white/20 rounded-xl p-3 text-sm text-white placeholder-emerald-200/50 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all resize-none h-20"
                             />
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                                 <select 
                                     value={feedbackRating}
                                     onChange={(e) => setFeedbackRating(e.target.value)}
@@ -142,7 +156,7 @@ export default function CommunityBoard() {
                                 <button 
                                     disabled={submitting || !feedbackContent}
                                     type="submit" 
-                                    className="px-6 py-2 bg-white text-emerald-700 font-bold rounded-lg text-sm shadow-md hover:bg-emerald-50 disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
+                                    className="sm:ml-auto px-6 py-2 bg-white text-emerald-700 font-bold rounded-lg text-sm shadow-md hover:bg-emerald-50 disabled:opacity-70 disabled:cursor-not-allowed transition-colors text-center flex justify-center"
                                 >
                                     {submitting ? <FaSpinner className="animate-spin"/> : "Submit Feedback"}
                                 </button>
@@ -172,7 +186,34 @@ export default function CommunityBoard() {
                                     <span className="text-slate-700">{"★".repeat(5 - (Number(item.rating) || 0))}</span>
                                 </div>
                              </div>
-                             <p className="text-slate-300 text-sm leading-relaxed pl-10">"{item.content}"</p>
+                             <p className="text-slate-300 text-sm leading-relaxed pl-10 mb-3">"{item.content}"</p>
+                             
+                             {/* Actions & Admin Response */}
+                             <div className="pl-10 space-y-3">
+                                 {/* Likes / Dislikes */}
+                                 <div className="flex items-center gap-4">
+                                     <button 
+                                        onClick={() => handleFeedbackVote(item.id, 'like')}
+                                        className={`flex items-center gap-1.5 text-xs font-bold transition-colors ${item.userVote === 'like' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
+                                     >
+                                         <FaThumbsUp /> {item.likes || 0}
+                                     </button>
+                                     <button 
+                                        onClick={() => handleFeedbackVote(item.id, 'dislike')}
+                                        className={`flex items-center gap-1.5 text-xs font-bold transition-colors ${item.userVote === 'dislike' ? 'text-red-400' : 'text-slate-500 hover:text-slate-300'}`}
+                                     >
+                                         <FaThumbsDown /> {item.dislikes || 0}
+                                     </button>
+                                 </div>
+
+                                 {/* Admin Response */}
+                                 {item.adminResponse && (
+                                     <div className="bg-slate-900/50 border-l-2 border-emerald-500 p-3 rounded-r-lg">
+                                         <p className="text-xs text-emerald-400 font-bold mb-1 flex items-center gap-2"><FaReply/> Administrator Response</p>
+                                         <p className="text-sm text-slate-300">{item.adminResponse}</p>
+                                     </div>
+                                 )}
+                             </div>
                         </div>
                     ))}
                     {feedbackList.length === 0 && <p className="text-slate-500 text-center py-4 bg-slate-800/50 rounded-xl border border-dashed border-slate-700">No feedback yet.</p>}
@@ -184,7 +225,6 @@ export default function CommunityBoard() {
               {pollsList.map((poll) => {
                   const totalVotes = poll.results.reduce((a: number, b: number) => a + b, 0);
                   const hasVoted = poll.userVotedOption !== null;
-
                   return (
                       <div key={poll.id} className="bg-slate-800 rounded-xl border border-slate-700 shadow-md p-6 relative overflow-hidden hover:shadow-emerald-900/10 transition-shadow">
                            <div className="flex items-center gap-3 mb-4">
@@ -214,6 +254,8 @@ export default function CommunityBoard() {
                                              className={`absolute top-0 left-0 h-full transition-all duration-1000 ${isSelected ? 'bg-emerald-500/20' : 'bg-blue-500/20'}`} 
                                              style={{ width: hasVoted ? `${percent}%` : '0%' }}
                                            ></div>
+
+
                                            <div className="absolute inset-0 flex items-center justify-between px-4 z-10">
                                                <span className={`text-sm font-medium ${isSelected ? 'text-emerald-400' : 'text-slate-200'}`}>
                                                     {opt} {isSelected && <FaCheckCircle className="inline ml-2 text-emerald-500"/>}
@@ -224,7 +266,6 @@ export default function CommunityBoard() {
                                    );
                                })}
                            </div>
-                           
                            <div className="flex justify-between items-center text-xs text-slate-500 border-t border-slate-700 pt-3">
                                <span>{totalVotes} total votes</span>
                                <span className={hasVoted ? "text-emerald-500 font-medium" : ""}>{hasVoted ? "Vote Recorded" : "Tap an option to vote"}</span>

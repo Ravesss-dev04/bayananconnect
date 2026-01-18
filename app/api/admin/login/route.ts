@@ -81,7 +81,6 @@ export async function POST(request: NextRequest) {
       message: 'Login successful!',
       redirectTo: '/admin'
     });
-
   } catch (error: any) {
     console.error('Admin login error:', error);
     return NextResponse.json(

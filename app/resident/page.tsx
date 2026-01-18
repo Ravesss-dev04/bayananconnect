@@ -18,6 +18,7 @@ import RequestTracker from "@/app/components/RequestTracker";
 import CommunityBoard from "@/app/components/CommunityBoard";
 import UserProfile from "@/app/components/UserProfile";
 import ServiceRequestModal from "@/app/components/ServiceRequestModal";
+import NotificationCenter from "@/app/components/NotificationCenter";
 import ProtectedRoute from "@/app/components/ProtectedRoutes";
 import { useAuth } from "@/app/context/AuthContext";
 
@@ -197,10 +198,7 @@ function ResidentDashboardContent() {
                 {activeTab === "community" && "Community"}
                 {activeTab === "profile" && "Profile"}
             </span>
-            <button className="p-2 text-slate-400 hover:text-white relative transition-colors bg-slate-700/50 rounded-lg">
-                <FaBell />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-slate-800"></span>
-            </button>
+            <NotificationCenter userId={user.id} />
         </header>
 
         {/* Viewport */}
@@ -220,10 +218,7 @@ function ResidentDashboardContent() {
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
-                     <button className="p-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all relative group border border-slate-800 hover:border-slate-700">
-                        <FaBell className="text-lg group-hover:shake" />
-                         <span className="absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full ring-2 ring-slate-900"></span>
-                    </button>
+                     <NotificationCenter userId={user.id} />
                 </div>
              </div>
 
@@ -234,7 +229,7 @@ function ResidentDashboardContent() {
                   {activeTab === "map" && <ResidentMap onReportClick={handleMapReport} user={user} />}
                   {activeTab === "requests" && <RequestTracker userId={user.id} />}
                   {activeTab === "community" && <CommunityBoard />}
-                  {activeTab === "profile" && <UserProfile user={user} />}
+                  {activeTab === "profile" && <UserProfile />}
                </div>
             </div>
             

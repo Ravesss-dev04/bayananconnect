@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
         userFullName: users.fullName,
         userEmail: users.email,
         userAddress: users.address,
+        userMobile: users.mobileNumber,
       })
       .from(requests)
       .leftJoin(users, eq(requests.userId, users.id))
@@ -37,4 +38,24 @@ export async function GET(req: NextRequest) {
     console.error('Error fetching admin requests:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
+}
+
+export async function DELETE(req: NextRequest) {
+    try {
+        const cookieStore = await cookies();
+        const isLoggedIn = cookieStore.get('admin_logged_in')?.value;
+
+        if (isLoggedIn !== 'true') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+        const { searchParams } = new URL(req.url);
+        const id = searchParams.get('id');
+
+        if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+
+        await db.delete(requests).where(eq(requests.id, id));
+
+        return NextResponse.json({ success: true });
+    } catch (e) {
+        return NextResponse.json({ error: 'Error deleting request' }, { status: 500 });
+    }
 }

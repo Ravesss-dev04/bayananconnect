@@ -7,8 +7,8 @@ import { FaUserShield, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 export default function AdminLoginPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("admin@bayanan.gov");
-  const [password, setPassword] = useState("admin123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -23,9 +23,7 @@ export default function AdminLoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-
       const data = await res.json();
-
       if (res.ok) {
         router.push('/admin');
       } else {
@@ -37,12 +35,14 @@ export default function AdminLoginPage() {
       setLoading(false);
     }
   };
-
   // Quick test button - uses default credentials
   const useDefaultCredentials = () => {
     setEmail("admin@bayanan.gov");
     setPassword("admin123");
   };
+
+
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-900">

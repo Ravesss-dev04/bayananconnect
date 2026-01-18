@@ -81,7 +81,7 @@ export default function ServiceRequestModal({ onClose, onSuccess, location }: Se
         setLoading(false);
     }
   };
-
+  
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
       <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-zoom-in">
@@ -176,7 +176,7 @@ export default function ServiceRequestModal({ onClose, onSuccess, location }: Se
                     <div className="space-y-1">
                         <label className="text-xs font-bold text-gray-500 uppercase">Description</label>
                         <textarea 
-                            className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                            className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none text-gray-800"
                             rows={3}
                             placeholder="Describe the issue in detail..."
                             value={description}

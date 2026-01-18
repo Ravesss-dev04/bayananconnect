@@ -97,7 +97,7 @@ export default function LoginPage() {
             className="mt-4 text-xs text-emerald-600 hover:text-emerald-800 underline"
             type="button"
           >
-            Use Test Credentials
+         
           </button>
         </div>
 
