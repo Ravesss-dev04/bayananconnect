@@ -49,10 +49,8 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const userId = JSON.parse(userCookie.value).userId;
-
     const body = await req.json();
     const { id } = body;
-
     // Mark specific notification as read
     if (id) {
         await db.update(notifications)
@@ -64,9 +62,8 @@ export async function PATCH(req: NextRequest) {
             .set({ isRead: true })
             .where(eq(notifications.userId, userId));
     }
-
+    
     return NextResponse.json({ success: true });
-
     } catch (e) {
         return NextResponse.json({ error: 'Error updating notifications' }, { status: 500 });
     }

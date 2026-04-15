@@ -44,6 +44,8 @@ export default function LoginPage() {
     }
   };
 
+
+
   // Test credentials button
   const useTestCredentials = () => {
     setEmail("resident@bayanan.gov");
@@ -59,9 +61,7 @@ export default function LoginPage() {
         </div>
       </div>
     );
-  }
-
-  
+  }  
   // Don't render login form if user is already logged in
 
   if (user) {
@@ -78,7 +78,8 @@ export default function LoginPage() {
             </pattern>
             <rect x="0" y="0" width="100%" height="100%" fill="url(#pattern-circles)" />
         </svg>
-      </div>
+      </div>  
+
       
       {/* Login Card */}
       <div className="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 p-8 sm:p-10 transform transition-all hover:shadow-2xl">
@@ -154,7 +155,7 @@ export default function LoginPage() {
               <input type="checkbox" className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 transition-colors mr-2 accent-emerald-600" />
               Remember me
             </label>
-            <a href="#" className="font-medium text-emerald-600 hover:text-emerald-700 hover:underline">
+            <a href="/forgot-password" className="font-medium text-emerald-600 hover:text-emerald-700 hover:underline">
               Forgot Password?
             </a>
           </div>

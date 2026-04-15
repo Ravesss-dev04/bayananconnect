@@ -210,11 +210,8 @@ function ResidentDashboardContent() {
                     Welcome back, <span className="text-emerald-400">{user.fullName.split(" ")[0]}</span>
                   </h2>
                   <p className="text-slate-500 text-sm flex items-center gap-2 mt-1 font-medium">
-                     <span className="flex h-2 w-2 relative">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                     </span>
-                     System Operational • {user.address}
+                     
+                    
                   </p>
                 </div>
                 <div className="flex items-center gap-4">

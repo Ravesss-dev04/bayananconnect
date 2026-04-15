@@ -18,10 +18,12 @@ export const users = pgTable('users', {
   password: text('password').notNull(),
   residencyProofUrl: text('residency_proof_url'),
   profileImageUrl: text('profile_image_url'),
+  isLocationVerified: boolean('is_location_verified').default(false),
+  detectedAddress: text('detected_address'),
+  requiresManualReview: boolean('requires_manual_review').default(false),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
-
 // ==================== ADMINS TABLE ====================
 export const admins = pgTable('admins', {
   id: varchar('id', { length: 50 }).primaryKey().default('admin-001'),
@@ -113,3 +115,14 @@ export const systemSettings = pgTable('system_settings', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+
+
+// Add this to your existing schema
+export const passwordResets = pgTable('password_resets', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  email: varchar('email', { length: 255 }).notNull(),
+  otp: varchar('otp', { length: 6 }).notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  isUsed: boolean('is_used').default(false),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});

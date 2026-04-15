@@ -11,12 +11,10 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
@@ -42,8 +40,6 @@ export default function AdminLoginPage() {
   };
 
 
-
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-900">
       <div className="w-full max-w-sm bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 p-8">
@@ -61,7 +57,6 @@ export default function AdminLoginPage() {
             {error}
           </div>
         )}
-
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-sm text-slate-400 mb-1">Email Address</label>
@@ -74,10 +69,10 @@ export default function AdminLoginPage() {
               className="w-full px-4 py-3 bg-slate-900 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-600"
             />
           </div>
-
           <div>
             <label className="block text-sm text-slate-400 mb-1">Password</label>
             <div className="relative">
+              
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter any password"
@@ -86,6 +81,7 @@ export default function AdminLoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 bg-slate-900 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-600 pr-10"
               />
+
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
@@ -95,17 +91,14 @@ export default function AdminLoginPage() {
               </button>
             </div>
           </div>
-
           <div className="flex items-center justify-between">
             <button
               type="button"
               onClick={useDefaultCredentials}
               className="text-sm text-emerald-500 hover:text-emerald-400"
             >
-         
             </button>
           </div>
-
           <button
             type="submit"
             disabled={loading}

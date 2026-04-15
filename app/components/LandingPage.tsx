@@ -25,6 +25,8 @@ export default function LandingPage() {
     <div className="bg-white text-gray-800 font-sans selection:bg-emerald-500/30">
       {/* HEADER */}
 
+
+
       <header className="fixed top-0 w-full bg-white/80 backdrop-blur-lg z-50 border-b border-gray-100 transition-all duration-300">
         <nav className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
           <div className="flex items-center gap-3">
@@ -79,7 +81,6 @@ export default function LandingPage() {
             </div>
         </div>
       </section>
-
       {/* FEATURES */}
       <section id="features" className="py-24 bg-white relative">
         <div className="max-w-7xl mx-auto px-6">
