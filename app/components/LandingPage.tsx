@@ -24,9 +24,6 @@ export default function LandingPage() {
   return (
     <div className="bg-white text-gray-800 font-sans selection:bg-emerald-500/30">
       {/* HEADER */}
-
-
-
       <header className="fixed top-0 w-full bg-white/80 backdrop-blur-lg z-50 border-b border-gray-100 transition-all duration-300">
         <nav className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
           <div className="flex items-center gap-3">
@@ -63,14 +60,13 @@ export default function LandingPage() {
                 Empowering Citizens with<br/>
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500">Geo-Integrated Insights</span>
             </h1>
-            
             <div className="min-h-[5rem] px-4 mb-2 md:mb-10 flex justify-center items-center animate-fadeInUp delay-200">
                 <p className="text-lg md:text-xl text-slate-500 font-medium text-center leading-relaxed">
                     {displayText}
                     <span className="inline-block w-0.5 h-5 bg-slate-400 animate-pulse ml-1 align-middle"></span>
                 </p>
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4 md:mt-8 animate-fadeInUp delay-300 px-4 sm:px-0">
                 <Link href="/login" className="px-8 py-4 bg-emerald-600 text-white font-bold rounded-xl shadow-xl shadow-emerald-600/20 hover:bg-emerald-700 transition-all hover:-translate-y-1 flex items-center justify-center gap-2 group w-full sm:w-auto">
                     Get Started <FaArrowRight className="group-hover:translate-x-1 transition-transform"/>
@@ -81,6 +77,7 @@ export default function LandingPage() {
             </div>
         </div>
       </section>
+
       {/* FEATURES */}
       <section id="features" className="py-24 bg-white relative">
         <div className="max-w-7xl mx-auto px-6">

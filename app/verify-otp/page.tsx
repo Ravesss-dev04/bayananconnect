@@ -16,6 +16,7 @@ function VerifyOTPFallback() {
   );
 }
 
+
 export default function VerifyOTPPage() {
   return (
     <Suspense fallback={<VerifyOTPFallback />}>
@@ -23,3 +24,5 @@ export default function VerifyOTPPage() {
     </Suspense>
   );
 }
+
+

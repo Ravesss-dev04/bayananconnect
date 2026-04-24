@@ -296,6 +296,31 @@ export default function GISMap() {
                                          <p className="font-bold text-sm text-slate-800 leading-tight">{req.description}</p>
                                          <p className="text-[10px] text-slate-400 mt-1">{new Date(req.createdAt).toLocaleString()}</p>
                                      </div>
+                                     <div className="bg-slate-50 p-2 rounded border border-slate-100 space-y-2">
+                                         <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Submitted By</p>
+                                         <div className="flex items-center gap-2">
+                                             <img
+                                                 src={`https://ui-avatars.com/api/?name=${encodeURIComponent((req.userFullName || 'Resident').replace(/\s+/g, '+'))}&background=10b981&color=fff&bold=true&size=80`}
+                                                 alt={req.userFullName ? `${req.userFullName} avatar` : 'Resident avatar'}
+                                                 className="w-10 h-10 rounded-full object-cover border border-slate-200"
+                                             />
+                                             <div className="min-w-0">
+                                                 <p className="text-xs text-slate-700 font-bold truncate">{req.userFullName || 'Unknown Resident'}</p>
+                                                 <p className="text-[10px] text-slate-500 truncate">{req.userEmail || 'No email provided'}</p>
+                                             </div>
+                                             
+                                         </div>
+                                     </div>
+                                     {req.imageUrl && (
+                                         <div className="bg-slate-50 p-2 rounded border border-slate-100 space-y-2">
+                                             <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Request Image</p>
+                                             <img
+                                                 src={req.imageUrl}
+                                                 alt="Resident submitted issue"
+                                                 className="w-full h-32 rounded object-cover border border-slate-200"
+                                             />
+                                         </div>
+                                     )}
                                      
                                      <div className="bg-slate-50 p-2 rounded border border-slate-100 space-y-1">
                                          <p className="text-xs text-slate-600 flex items-center gap-2">
